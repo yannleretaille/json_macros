@@ -153,7 +153,7 @@ fn parse_json(cx: &ExtCtxt, parser: &mut Parser) -> P<Expr> {
                 }));
             }
             let expr = quote_expr!(cx, {
-                let mut _ob = ::std::collections::BTreeMap::new();
+                let mut _ob = ::serde_json::Map::new();
                 $insertions;
                 ::serde_json::Value::Object(_ob)
             });
@@ -162,7 +162,7 @@ fn parse_json(cx: &ExtCtxt, parser: &mut Parser) -> P<Expr> {
         &Token::OpenDelim(DelimToken::Paren) => {
             let expr = parser.parse_expr().unwrap();
             quote_expr!(cx, {{
-                ::serde_json::to_value(&$expr)
+                ::serde_json::to_value(&$expr).unwrap() //TODO: unwrap ok here?
             }})
         }
         &Token::Ident(id) if id.name == "null" => {
@@ -175,7 +175,7 @@ fn parse_json(cx: &ExtCtxt, parser: &mut Parser) -> P<Expr> {
             // TODO: investigate can_begin_expr (maybe eliminate need for parens)?
             let expr = parser.parse_pat_literal_maybe_minus().ok().unwrap();
             quote_expr!(cx, {{
-                ::serde_json::to_value(&$expr)
+                ::serde_json::to_value(&$expr).unwrap() //TODO: unwrap ok here?
             }})
         }
     }
